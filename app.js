@@ -3,7 +3,7 @@ const inquirer = require('inquirer');
 
 const connection = mysql.createConnection({
     host: 'localhost',
-    user: 'your_username',     // Replace with your MySQL username
-    password: 'your_password', // Replace with your MySQL password
+    user: 'root',     // 
+    password: 'danceMachine564', // 
     database: 'employee_tracker_db'
   });
