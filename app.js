@@ -3,6 +3,8 @@ const queries = require('./queries');
 
 async function startApp() {
   try {
+    const connection = await queries.createConnection();
+    
     const action = await inquirer.prompt({
       name: 'action',
       type: 'list',
@@ -21,17 +23,17 @@ async function startApp() {
 
     switch (action.action) {
       case 'View all departments':
-        const departments = await queries.viewAllDepartments();
+        const departments = await queries.viewAllDepartments(connection);
         console.table(departments);
         break;
 
       case 'View all roles':
-        const roles = await queries.viewAllRoles();
+        const roles = await queries.viewAllRoles(connection);
         console.table(roles);
         break;
 
       case 'View all employees':
-        const employees = await queries.viewAllEmployees();
+        const employees = await queries.viewAllEmployees(connection);
         console.table(employees);
         break;
 
@@ -41,7 +43,7 @@ async function startApp() {
           type: 'input',
           message: 'Enter the name of the department:'
         });
-        await queries.addDepartment(departmentPrompt.departmentName);
+        await queries.addDepartment(connection, departmentPrompt.departmentName);
         console.log('Department added successfully.');
         break;
 
@@ -63,7 +65,7 @@ async function startApp() {
             message: 'Enter the department ID for the role:'
           }
         ]);
-        await queries.addRole(rolePrompt.title, rolePrompt.salary, rolePrompt.departmentId);
+        await queries.addRole(connection, rolePrompt.title, rolePrompt.salary, rolePrompt.departmentId);
         console.log('Role added successfully.');
         break;
 
@@ -90,12 +92,7 @@ async function startApp() {
             message: 'Enter the manager ID for the employee (if applicable):'
           }
         ]);
-        await queries.addEmployee(
-          employeePrompt.firstName,
-          employeePrompt.lastName,
-          employeePrompt.roleId,
-          employeePrompt.managerId
-        );
+        await queries.addEmployee(connection, employeePrompt.firstName, employeePrompt.lastName, employeePrompt.roleId, employeePrompt.managerId);
         console.log('Employee added successfully.');
         break;
 
@@ -112,20 +109,18 @@ async function startApp() {
             message: 'Enter the new role ID for the employee:'
           }
         ]);
-        await queries.updateEmployeeRole(updatePrompt.employeeId, updatePrompt.newRoleId);
+        await queries.updateEmployeeRole(connection, updatePrompt.employeeId, updatePrompt.newRoleId);
         console.log('Employee role updated successfully.');
         break;
 
       case 'Exit':
         console.log('Goodbye!');
+        connection.end(); // Close the connection when the app is finished
         return;
 
       default:
         console.log('Invalid action');
     }
-
-    // Recursive call to continue the app
-    await startApp();
   } catch (error) {
     console.error('Error:', error);
   }
